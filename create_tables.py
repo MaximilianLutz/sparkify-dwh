@@ -17,7 +17,6 @@ def create_tables(cur, conn):
     """Create staging, fact and dimension tables"""
     for query in create_table_queries:
         cur.execute(query)
-        print("Executing" + " " + query)
         conn.commit()
 
 

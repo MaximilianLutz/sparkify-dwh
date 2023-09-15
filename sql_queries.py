@@ -203,9 +203,17 @@ staging_songs_check_queries = [
     f"SELECT '{column}' AS column_name, COUNT(*) FROM staging_songs WHERE {column} IS NULL GROUP BY column_name;"
     for column in staging_songs_columns]
 
+# Count table length
+count_table_songplays = """ SELECT COUNT (*) FROM songplays"""
+count_table_songs = """ SELECT COUNT (*) FROM songs"""
+count_table_artists = """ SELECT COUNT (*) FROM artists"""
+count_table_users = """ SELECT COUNT (*) FROM users"""
+count_table_time = """ SELECT COUNT (*) FROM time"""
+
 
 # QUERY LISTS
 create_table_queries = [staging_events_table_create, staging_songs_table_create, songplay_table_create, user_table_create, song_table_create, artist_table_create, time_table_create]
 drop_table_queries = [staging_events_table_drop, staging_songs_table_drop, songplay_table_drop, user_table_drop, song_table_drop, artist_table_drop, time_table_drop]
 copy_table_queries = [staging_events_copy, staging_songs_copy]
 insert_table_queries = [songplay_table_insert, user_table_insert, song_table_insert, artist_table_insert, time_table_insert]
+count_table_length_queries = [count_table_songplays, count_table_songs, count_table_artists, count_table_users, count_table_time]

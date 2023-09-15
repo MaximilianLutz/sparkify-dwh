@@ -6,6 +6,7 @@ from sql_queries import (
     insert_table_queries,
     staging_events_check_queries,
     staging_songs_check_queries,
+    count_table_length_queries,
 )
 
 
@@ -49,6 +50,12 @@ def insert_tables(cur, conn):
         cur.execute(query)
         conn.commit()
 
+    # Check for successful filling and count rows 
+    for query in count_table_length_queries:
+        cur.execute(query)
+        result = cur.fetchone()
+        print(f" Number of rows is {result}")
+
 
 def main():
     config = configparser.ConfigParser()
@@ -56,7 +63,7 @@ def main():
 
     # Configure logging
     logging.basicConfig(
-        filename="etl.log",
+        filename="additional_material/etl.log",
         level=logging.INFO,
         format="%(asctime)s - %(levelname)s - %(message)s",
     )
