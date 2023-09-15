@@ -5,13 +5,13 @@ import configparser
 config = configparser.ConfigParser()
 config.read('dwh.cfg')
 
+# Importing credentials and file paths
 ARN             = config.get('IAM_ROLE', 'ARN')
 LOG_DATA        = config.get('S3', 'LOG_DATA')
 LOG_JSONPATH    = config.get('S3', 'LOG_JSONPATH')
 SONG_DATA       = config.get('S3', 'SONG_DATA')
 
 # DROP TABLES
-
 staging_events_table_drop = "DROP TABLE IF EXISTS staging_events;"
 staging_songs_table_drop = "DROP TABLE IF EXISTS staging_songs;"
 songplay_table_drop = "DROP TABLE IF EXISTS songplays;"
@@ -21,9 +21,8 @@ artist_table_drop = "DROP TABLE IF EXISTS artists;"
 time_table_drop = "DROP TABLE IF EXISTS time;"
 
 # CREATE TABLES
-
 staging_events_table_create= (""" CREATE TABLE IF NOT EXISTS staging_events (
-                event_id    BIGINT IDENTITY(0,1),
+                event_id    BIGINT IDENTITY(0,1) NOT NULL,
                 artist      VARCHAR,               
                 auth        VARCHAR,               
                 firstName   VARCHAR,               
@@ -45,69 +44,69 @@ staging_events_table_create= (""" CREATE TABLE IF NOT EXISTS staging_events (
 """)
 
 staging_songs_table_create = ("""CREATE TABLE IF NOT EXISTS staging_songs (
-                num_songs           INTEGER         NULL,
-                artist_id           VARCHAR         NOT NULL SORTKEY DISTKEY,
-                artist_latitude     VARCHAR         NULL,
-                artist_longitude    VARCHAR         NULL,
-                artist_location     VARCHAR(500)   NULL,
-                artist_name         VARCHAR(500)   NULL,
-                song_id             VARCHAR         NOT NULL,
-                title               VARCHAR(500)   NULL,
-                duration            DECIMAL(9)      NULL,
-                year                INTEGER         NULL)
+                num_songs           INTEGER           ,
+                artist_id           VARCHAR           ,
+                artist_latitude     VARCHAR           ,
+                artist_longitude    VARCHAR           ,
+                artist_location     VARCHAR(550)      ,
+                artist_name         VARCHAR(200)      ,
+                song_id             VARCHAR           ,
+                title               VARCHAR(200)      ,
+                duration            FLOAT             ,
+                year                INTEGER           )
 """)
 
 songplay_table_create = (""" CREATE TABLE IF NOT EXISTS songplays (
-                songplay_id INTEGER IDENTITY(0,1)   NOT NULL SORTKEY,
-                start_time  TIMESTAMP               NOT NULL,
-                user_id     VARCHAR(50)             NOT NULL DISTKEY,
-                level       VARCHAR(10)             NOT NULL,
-                song_id     VARCHAR(40)             NOT NULL,
-                artist_id   VARCHAR(50)             NOT NULL,
-                session_id  VARCHAR(50)             NOT NULL,
-                location    VARCHAR(100)            NULL,
-                user_agent  VARCHAR(255)            NULL)
+                songplay_id INTEGER IDENTITY(0,1) PRIMARY KEY NOT NULL,
+                start_time  TIMESTAMP,
+                user_id     VARCHAR,
+                level       VARCHAR,
+                song_id     VARCHAR,
+                artist_id   VARCHAR,
+                session_id  VARCHAR,
+                location    VARCHAR,
+                user_agent  VARCHAR                 )
 """)
 
 user_table_create = ("""CREATE TABLE IF NOT EXISTS 
 users (
-                user_id     INTEGER                 NOT NULL SORTKEY,
-                first_name  VARCHAR(50)             NULL,
-                last_name   VARCHAR(80)             NULL,
-                gender      VARCHAR(10)             NULL,
-                level       VARCHAR(10)             NULL)
+                user_id     INTEGER PRIMARY KEY NOT NULL,
+                first_name  VARCHAR,
+                last_name   VARCHAR,
+                gender      VARCHAR,
+                level       VARCHAR)
 """)
 
 
 artist_table_create = ("""CREATE TABLE IF NOT EXISTS artists (
-                artist_id   VARCHAR(50)             NOT NULL SORTKEY,
-                name        VARCHAR(500)           NULL,
-                location    VARCHAR(500)           NULL,
-                latitude    DECIMAL(9)              NULL,
-                longitude   DECIMAL(9)              NULL)
+                artist_id   VARCHAR(50)          PRIMARY KEY NOT NULL ,
+                name        VARCHAR(200)         ,
+                location    VARCHAR(500)         ,
+                latitude    DECIMAL(10)           ,
+                longitude   DECIMAL(10)           )
 
 """)
 
 song_table_create = ("""CREATE TABLE IF NOT EXISTS songs (
-                song_id     VARCHAR(50)             NOT NULL SORTKEY,
-                title       VARCHAR(500)           NOT NULL,
-                artist_id   VARCHAR(50)             NOT NULL,
-                year        INTEGER                 NOT NULL,
-                duration    DECIMAL(9)              NOT NULL)
+                song_id     VARCHAR(100)             PRIMARY KEY NOT NULL,
+                title       VARCHAR(200)            ,
+                artist_id   VARCHAR(200)             ,
+                year        INTEGER                 ,
+                duration    FLOAT              )
 
 """)
 
 time_table_create = ("""CREATE TABLE IF NOT EXISTS time (
-                start_time  TIMESTAMP               NOT NULL SORTKEY,
-                hour        SMALLINT                NULL,
-                day         SMALLINT                NULL,
-                week        SMALLINT                NULL,
-                month       SMALLINT                NULL,
-                year        SMALLINT                NULL,
-                weekday     SMALLINT                NULL)
+                start_time  TIMESTAMP               PRIMARY KEY NOT NULL,
+                hour        INTEGER                ,
+                day         INTEGER                ,
+                week        INTEGER                ,
+                month       INTEGER                ,
+                year        INTEGER                ,
+                weekday     INTEGER                )
 """)
 
-# STAGING TABLES
+# FILL STAGING TABLES
 staging_events_copy = ("""
     COPY staging_events FROM {}
     credentials 'aws_iam_role={}'
@@ -125,8 +124,7 @@ staging_songs_copy = ("""
     region 'us-west-2';
 """).format(SONG_DATA, ARN)
 
-# FINAL TABLES
-
+# FILL FINAL TABLES
 songplay_table_insert = ("""
     INSERT INTO songplays (start_time, user_id, level, song_id, artist_id, session_id, location, user_agent)
     SELECT DISTINCT TIMESTAMP 'epoch' + se.ts/1000 * INTERVAL '1 second', 
@@ -159,7 +157,7 @@ song_table_insert = ("""
     SELECT  DISTINCT ss.song_id  AS song_id,
         ss.title            AS title,
         ss.artist_id        AS artist_id,
-        ss.year             AS as year,
+        ss.year             AS year,
         ss.duration         AS duration
     FROM staging_songs AS ss;
 """)
@@ -187,8 +185,26 @@ time_table_insert = ("""
     WHERE se.page = 'NextSong';
 """)
 
-# QUERY LISTS
+# QUALITY CHECKS    
 
+# Define column names for staging_events
+staging_events_columns = [  
+"event_id", "artist", "auth", "firstName", "gender", "itemInSession", "lastName", "length", "level", "location", "method", "page", "registration",  "sessionId", "song", "status", "ts", "userAgent", "userId"]      
+# Define column names for staging_songs
+staging_songs_columns = ["num_songs", "artist_id", "artist_latitude", "artist_longitude", "artist_location", "artist_name", "song_id", "title", "duration", "year"]
+
+# Data quality check for staging_events
+staging_events_check_queries = [
+    f"SELECT '{column}' AS column_name, COUNT(*) FROM staging_events WHERE {column} IS NULL GROUP BY column_name;"
+    for column in staging_events_columns]
+
+# Data quality check for staging_songs
+staging_songs_check_queries = [
+    f"SELECT '{column}' AS column_name, COUNT(*) FROM staging_songs WHERE {column} IS NULL GROUP BY column_name;"
+    for column in staging_songs_columns]
+
+
+# QUERY LISTS
 create_table_queries = [staging_events_table_create, staging_songs_table_create, songplay_table_create, user_table_create, song_table_create, artist_table_create, time_table_create]
 drop_table_queries = [staging_events_table_drop, staging_songs_table_drop, songplay_table_drop, user_table_drop, song_table_drop, artist_table_drop, time_table_drop]
 copy_table_queries = [staging_events_copy, staging_songs_copy]

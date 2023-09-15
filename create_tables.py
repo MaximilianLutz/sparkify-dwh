@@ -3,23 +3,33 @@ import psycopg2
 from sql_queries import create_table_queries, drop_table_queries
 
 
+# DROP TABLES
 def drop_tables(cur, conn):
+    """Drop all tables in DWH in case they already exist"""
     for query in drop_table_queries:
         cur.execute(query)
+        print("Executing" + " " + query)
         conn.commit()
 
 
+# CREATE TABLES
 def create_tables(cur, conn):
+    """Create staging, fact and dimension tables"""
     for query in create_table_queries:
         cur.execute(query)
+        print("Executing" + " " + query)
         conn.commit()
 
 
 def main():
     config = configparser.ConfigParser()
-    config.read('dwh.cfg')
+    config.read("dwh.cfg")
 
-    conn = psycopg2.connect("host={} dbname={} user={} password={} port={}".format(*config['CLUSTER'].values()))
+    conn = psycopg2.connect(
+        "host={} dbname={} user={} password={} port={}".format(
+            *config["CLUSTER"].values()
+        )
+    )
     cur = conn.cursor()
 
     drop_tables(cur, conn)
