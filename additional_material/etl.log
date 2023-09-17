@@ -1,0 +1,14 @@
+2023-09-17 13:01:36,824 - WARNING - Data quality check failed: Staging table 'staging_events' contains 1236 missing values in column 'artist'.
+2023-09-17 13:01:37,151 - WARNING - Data quality check failed: Staging table 'staging_events' contains 286 missing values in column 'firstName'.
+2023-09-17 13:01:37,275 - WARNING - Data quality check failed: Staging table 'staging_events' contains 286 missing values in column 'gender'.
+2023-09-17 13:01:40,428 - WARNING - Data quality check failed: Staging table 'staging_events' contains 286 missing values in column 'lastName'.
+2023-09-17 13:01:43,480 - WARNING - Data quality check failed: Staging table 'staging_events' contains 1236 missing values in column 'length'.
+2023-09-17 13:01:43,726 - WARNING - Data quality check failed: Staging table 'staging_events' contains 286 missing values in column 'location'.
+2023-09-17 13:01:44,102 - WARNING - Data quality check failed: Staging table 'staging_events' contains 286 missing values in column 'registration'.
+2023-09-17 13:01:44,385 - WARNING - Data quality check failed: Staging table 'staging_events' contains 1236 missing values in column 'song'.
+2023-09-17 13:01:44,826 - WARNING - Data quality check failed: Staging table 'staging_events' contains 286 missing values in column 'userAgent'.
+2023-09-17 13:01:44,952 - WARNING - Data quality check failed: Staging table 'staging_events' contains 286 missing values in column 'userId'.
+2023-09-17 13:01:49,588 - WARNING - Data quality check failed: Staging table 'staging_songs' contains 9619 missing values in column 'artist_latitude'.
+2023-09-17 13:01:49,724 - WARNING - Data quality check failed: Staging table 'staging_songs' contains 9619 missing values in column 'artist_longitude'.
+2023-09-17 13:01:49,895 - WARNING - Data quality check failed: Staging table 'staging_songs' contains 1 missing values in column 'artist_location'.
+2023-09-17 13:02:18,958 - INFO - ETL process completed successfully.

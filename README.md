@@ -1,4 +1,4 @@
-2# Data Warehouse Project - Sparkify
+# 2 Data Warehouse Project - Sparkify
 
 ## Introduction
 Sparkify, a music streaming startup, seeks to migrate their data and processes to the cloud. Their data, stored in Amazon S3, consists of JSON logs on user activity and song metadata. As the data engineer, our task is to build an ETL pipeline, extracting data from S3, staging it in Amazon Redshift, and transforming it into dimensional tables for analytics.

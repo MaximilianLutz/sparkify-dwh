@@ -27,9 +27,9 @@ staging_events_table_create= (""" CREATE TABLE IF NOT EXISTS staging_events (
                 auth        VARCHAR,               
                 firstName   VARCHAR,               
                 gender      VARCHAR,               
-                itemInSession VARCHAR,             
+                itemInSession INTEGER,             
                 lastName    VARCHAR,               
-                length      VARCHAR,               
+                length      FLOAT,               
                 level       VARCHAR,               
                 location    VARCHAR,               
                 method      VARCHAR,               
@@ -45,12 +45,12 @@ staging_events_table_create= (""" CREATE TABLE IF NOT EXISTS staging_events (
 
 staging_songs_table_create = ("""CREATE TABLE IF NOT EXISTS staging_songs (
                 num_songs           INTEGER           ,
-                artist_id           VARCHAR           ,
-                artist_latitude     VARCHAR           ,
-                artist_longitude    VARCHAR           ,
+                artist_id           VARCHAR   DISTKEY SORTKEY        ,
+                artist_latitude     FLOAT           ,
+                artist_longitude    FLOAT           ,
                 artist_location     VARCHAR(550)      ,
                 artist_name         VARCHAR(200)      ,
-                song_id             VARCHAR           ,
+                song_id             VARCHAR            ,
                 title               VARCHAR(200)      ,
                 duration            FLOAT             ,
                 year                INTEGER           )
@@ -58,19 +58,19 @@ staging_songs_table_create = ("""CREATE TABLE IF NOT EXISTS staging_songs (
 
 songplay_table_create = (""" CREATE TABLE IF NOT EXISTS songplays (
                 songplay_id INTEGER IDENTITY(0,1) PRIMARY KEY NOT NULL,
-                start_time  TIMESTAMP,
-                user_id     VARCHAR,
+                start_time  TIMESTAMP SORTKEY,
+                user_id     INTEGER DISTKEY,
                 level       VARCHAR,
                 song_id     VARCHAR,
                 artist_id   VARCHAR,
-                session_id  VARCHAR,
+                session_id  INTEGER,
                 location    VARCHAR,
                 user_agent  VARCHAR                 )
 """)
 
 user_table_create = ("""CREATE TABLE IF NOT EXISTS 
 users (
-                user_id     INTEGER PRIMARY KEY NOT NULL,
+                user_id     INTEGER PRIMARY KEY NOT NULL DISTKEY,
                 first_name  VARCHAR,
                 last_name   VARCHAR,
                 gender      VARCHAR,
@@ -82,8 +82,8 @@ artist_table_create = ("""CREATE TABLE IF NOT EXISTS artists (
                 artist_id   VARCHAR(50)          PRIMARY KEY NOT NULL ,
                 name        VARCHAR(200)         ,
                 location    VARCHAR(500)         ,
-                latitude    DECIMAL(10)           ,
-                longitude   DECIMAL(10)           )
+                latitude    INTEGER           ,
+                longitude   INTEGER            )
 
 """)
 
